@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Алима Троицкая](https://up.htmlacademy.ru/javascript/15/user/250829).
-* Наставник: `Неизвестно`.
+* Наставник: `Мария Филлипова`.
 
 ---
 
