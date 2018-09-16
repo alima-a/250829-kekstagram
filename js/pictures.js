@@ -46,11 +46,14 @@ var generateComment = function () {
 };
 
 // Получение рандомного массива комментариев
-var comments = [];
 var generateComments = function () {
+  var comments = [];
+
   for (var i = 0; i < getRandomNum(1, 10); i++) {
     comments[i] = generateComment();
   }
+
+  return comments;
 };
 
 // Функция получения массива описаний фото
@@ -75,7 +78,7 @@ var renderPhoto = function (photo) {
 
   photoElement.querySelector('.picture__img').src = photo.url;
   photoElement.querySelector('.picture__likes').textContent = photo.likes;
-  photoElement.querySelector('.picture__stat--comments').textContent = photo.comments.length;
+  photoElement.querySelector('.picture__comments').textContent = photo.comments.length;
 
   return photoElement;
 };
