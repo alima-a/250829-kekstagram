@@ -83,8 +83,6 @@ var renderPhoto = function (photo) {
   return photoElement;
 };
 
-renderPhoto(photos);
-
 // Отрисуем сгенерированные DOM-элементы в блок
 var appendPhotos = function () {
   var fragment = document.createDocumentFragment();
