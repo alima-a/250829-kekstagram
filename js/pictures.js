@@ -1,8 +1,21 @@
 'use strict';
 
-var PHOTOS_QUANITY = 25;
-var COMMENTS = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
-var DESCRIPTIONS = ['Тестим новую камеру!', 'Затусили с друзьями на море', 'Как же круто тут кормят', 'Отдыхаем...', 'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......', 'Вот это тачка!'];
+var PHOTOS_QUANTITY = 25;
+var COMMENTS = [
+  'Всё отлично!',
+  'В целом всё неплохо. Но не всё.',
+  'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
+  'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
+  'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
+  'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
+];
+var DESCRIPTIONS = [
+  'Тестим новую камеру!',
+  'Затусили с друзьями на море', 'Как же круто тут кормят',
+  'Отдыхаем...',
+  'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
+  'Вот это тачка!'
+];
 var MIN_LIKES = 15;
 var MAX_LIKES = 200;
 
@@ -23,22 +36,21 @@ var getRandomElement = function (array) {
 };
 
 // Функция получения рандомного комментария
-var getRandomComment = function (from, to) {
+var generateComment = function () {
+  var comment = getRandomElement(COMMENTS);
 
-  var commentsArray = [];
-
-  for (var i = 0; i < to; i++) {
-    var comment = COMMENTS[getRandomNum(0, COMMENTS.length)];
-    var randomNumber = getRandomNum(0, COMMENTS.length);
-
-    if (randomNumber % 2) {
-      commentsArray.push(comment);
-    } else {
-      comment += COMMENTS[getRandomNum(0, COMMENTS.length)];
-      commentsArray.push(comment);
-    }
+  if (getRandomNum(0, COMMENTS.length) % 2) {
+    comment += ' ' + getRandomElement(COMMENTS);
   }
-  return commentsArray;
+  return comment;
+};
+
+// Получение рандомного массива комментариев
+var comments = [];
+var generateComments = function () {
+  for (var i = 0; i < getRandomNum(1, 10); i++) {
+    comments[i] = generateComment();
+  }
 };
 
 // Функция получения массива описаний фото
@@ -48,14 +60,14 @@ var generateDescriptions = function (amount) {
     photos[i] = {
       url: 'photos/' + (i + 1) + '.jpg',
       likes: getRandomNum(MIN_LIKES, MAX_LIKES),
-      comments: getRandomComment(0, COMMENTS.length),
+      comments: generateComments(),
       description: getRandomElement(DESCRIPTIONS)
     };
   }
 };
 
 // Получаем массив описаний
-generateDescriptions(PHOTOS_QUANITY);
+generateDescriptions(PHOTOS_QUANTITY);
 
 // DOM-элемент заполняем данными из массива
 var renderPhoto = function (photo) {
@@ -83,7 +95,7 @@ appendPhotos(photos);
 
 // Делаем видимым блок
 var bigPicture = document.querySelector('.big-picture');
-bigPicture.remove('hidden');
+bigPicture.classList.remove('hidden');
 
 // Функция для отображения комментария
 var getComments = function (сomments) {
