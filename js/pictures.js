@@ -96,7 +96,7 @@ appendPhotos(photos);
 
 // Делаем видимым блок
 var bigPicture = document.querySelector('.big-picture');
-bigPicture.classList.remove('hidden');
+// bigPicture.classList.remove('hidden');
 
 // Функция для отображения комментария
 var getComments = function (сomments) {
