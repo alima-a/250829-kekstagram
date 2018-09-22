@@ -20,10 +20,11 @@ var MIN_LIKES = 15;
 var MAX_LIKES = 200;
 
 // Найдем элементы
-var pictures = document.querySelector('.pictures');
+var picturesSection = document.querySelector('.pictures');
 var pictureTemplate = document.querySelector('#picture')
     .content
     .querySelector('.picture');
+var bigPicture = document.querySelector('.big-picture');
 
 // Функция получения рандомного числа от min до max
 var getRandomNum = function (min, max) {
@@ -79,7 +80,11 @@ var renderPhoto = function (photo) {
   photoElement.querySelector('.picture__img').src = photo.url;
   photoElement.querySelector('.picture__likes').textContent = photo.likes;
   photoElement.querySelector('.picture__comments').textContent = photo.comments.length;
-
+  // Тут у нас обработчик события, чтобы фото по клику открывалось:
+  photoElement.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    onPhotoClick(photo);
+  });
   return photoElement;
 };
 
@@ -89,14 +94,10 @@ var appendPhotos = function () {
   for (var i = 0; i < photos.length; i++) {
     fragment.appendChild(renderPhoto(photos[i]));
   }
-  pictures.appendChild(fragment);
+  picturesSection.appendChild(fragment);
 };
 
 appendPhotos(photos);
-
-// Делаем видимым блок
-var bigPicture = document.querySelector('.big-picture');
-// bigPicture.classList.remove('hidden');
 
 // Функция для отображения комментария
 var getComments = function (сomments) {
@@ -141,11 +142,81 @@ var renderBigPicture = function (array) {
   return bigPicture;
 };
 
-// Отрисовываем
-renderBigPicture(photos[0]);
-
 // Прячем блоки
 var socialСommentСount = document.querySelector('.social__comment-count');
 socialСommentСount.classList.add('visually-hidden');
 var commentsloader = document.querySelector('.comments-loader');
 commentsloader.classList.add('visually-hidden');
+
+// ОТКРЫТИЕ И ЗАКРЫТИЕ БОЛЬШОГО ФОТО
+// Переменные и константы
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+
+// Элемент для закрытия фото
+var bigPhotoClose = bigPicture.querySelector('.big-picture__cancel');
+
+// Функция открытия большого фото
+var showBigPhoto = function () {
+  bigPicture.classList.remove('hidden');
+};
+
+// Функция, вызывающая большое изображение по клику на маленькое
+var onPhotoClick = function (photo) {
+  renderBigPicture(photo);
+  showBigPhoto();
+};
+
+// Функция закрытия большого фото нажатием esc ВОТ ПОЧЕМУ-ТО НЕ РАБОТАЕТ, ПАМАГИТЕ
+var onBigPhotoEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeBigPhoto();
+  }
+};
+
+// Функция закрытия большого фото
+var closeBigPhoto = function () {
+  bigPicture.classList.add('hidden');
+  document.removeEventListener('keydown', onBigPhotoEscPress);
+};
+
+// Обработчик собития - закрытие по клику
+bigPhotoClose.addEventListener('click', function () {
+  closeBigPhoto();
+});
+
+// Обработчик - закрытие по esc
+bigPhotoClose.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeBigPhoto();
+  }
+});
+
+// Открытие по Enter
+picturesSection.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    onPhotoClick();
+  }
+});
+
+// ЗАГРУЗКА ИЗОБРАЖЕНИЯ И ПОКАЗ ФОРМЫ РЕДАКТИРОВАНИЯ
+// Поле редактирования изображения
+var imgUploadOverlay = document.querySelector('.img-upload__overlay')};
+var fileUploadControl = document.querySelector('#upload-file');
+// Кнопка закрытия окна редактирования изображения
+var imgUploadCancel = document.querySelector('.img-upload__cancel');
+var imgUploadPreview = document.querySelector('.img-upload__preview img');
+// Форма загрузки фото
+var imgUploadForm = document.querySelector('.img-upload__form');
+
+// Открытие формы редактирования изображения
+var openImgUploadOverlay = function () {
+  imgUploadOverlay.classList.remove('hidden');
+};
+
+// Открытие формы изображения по изменению #upload__file
+fileUploadControl.addEventListener('change', function () {
+  openImgUploadOverlay();
+});
+
+// Все еще ниче не понимаю
