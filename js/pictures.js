@@ -186,8 +186,15 @@ bigPhotoClose.addEventListener('click', function () {
 });
 
 // Обработчик - закрытие по esc
-bigPhotoClose.addEventListener('keydown', function (evt) {
+bigPicture.addEventListener('keydown', function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
+    closeBigPhoto();
+  }
+});
+
+// Обработчик - закрытие по Enter
+bigPhotoClose.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
     closeBigPhoto();
   }
 });
@@ -201,17 +208,15 @@ picturesSection.addEventListener('keydown', function (evt) {
 
 // ЗАГРУЗКА ИЗОБРАЖЕНИЯ И ПОКАЗ ФОРМЫ РЕДАКТИРОВАНИЯ
 // Поле редактирования изображения
-var imgUploadOverlay = document.querySelector('.img-upload__overlay')};
+var uploadOverlay = document.querySelector('.img-upload__overlay');
 var fileUploadControl = document.querySelector('#upload-file');
 // Кнопка закрытия окна редактирования изображения
-var imgUploadCancel = document.querySelector('.img-upload__cancel');
-var imgUploadPreview = document.querySelector('.img-upload__preview img');
-// Форма загрузки фото
-var imgUploadForm = document.querySelector('.img-upload__form');
+var uploadCancel = document.querySelector('.img-upload__cancel');
+var uploadPreview = document.querySelector('.img-upload__preview img');
 
 // Открытие формы редактирования изображения
 var openImgUploadOverlay = function () {
-  imgUploadOverlay.classList.remove('hidden');
+  uploadOverlay.classList.remove('hidden');
 };
 
 // Открытие формы изображения по изменению #upload__file
@@ -219,4 +224,105 @@ fileUploadControl.addEventListener('change', function () {
   openImgUploadOverlay();
 });
 
-// Все еще ниче не понимаю
+// Функция, закрывающая форму
+var closeImgUpload = function () {
+  uploadOverlay.classList.add('hidden');
+};
+
+// Обработчик события - закрытие по клику
+uploadCancel.addEventListener('click', function () {
+  closeImgUpload();
+});
+
+// Обработчик - закрытие по esc
+uploadCancel.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeImgUpload();
+  }
+});
+
+// РЕДАКТИРОВАНИЕ РАЗМЕРА ИЗОБРАЖЕНИЯ
+var scaleControlSmaller = document.querySelector('.scale__control--smaller');
+var scaleControlBigger = document.querySelector('.scale__control--bigger');
+var scaleControlValue = document.querySelector('.scale__control--value');
+var PERCENT = '%';
+var SCALE_STEP = 25;
+var SCALE_MIN = 25;
+var SCALE_MAX = 100;
+
+// Получаем значение масштаба
+var getScaleControlValue = function () {
+  var value = scaleControlValue.value;
+  var quantity = value.slice(0, value.length - 1);
+  return +quantity;
+};
+
+// Добавляем значение масштаба
+var addScaleImgUploadPreview = function () {
+  uploadPreview.style.transform = 'scale(' + getScaleControlValue() / 100 + ')';
+};
+
+// Обработчик для уменьшения масштаба
+scaleControlSmaller.addEventListener('click', function () {
+  scaleControlValue.value = (getScaleControlValue() - SCALE_STEP) + PERCENT;
+  if (getScaleControlValue() <= SCALE_MIN) {
+    scaleControlValue.value = SCALE_MAX + PERCENT;
+  }
+  addScaleImgUploadPreview();
+});
+
+// Обработчик для увеличения масштаба
+scaleControlBigger.addEventListener('click', function () {
+  scaleControlValue.value = (getScaleControlValue() + SCALE_STEP) + PERCENT;
+  if (getScaleControlValue() >= SCALE_MAX) {
+    scaleControlValue.value = SCALE_MAX + PERCENT;
+  }
+  addScaleImgUploadPreview();
+});
+
+// НАЛОЖЕНИЕ ЭФФЕКТА ИЗОБРАЖЕНИЯ
+var EFFECT_DEEP_MAX = 100;
+var EFFECT_DEEP_MIN = 0;
+var EFFECTS = [
+  {
+    name: 'chrome',
+    value: 'grayscale',
+    min: 0,
+    max: 1,
+    unit: ''
+  },
+  {
+    name: 'sepia',
+    value: 'sepia',
+    min: 0,
+    max: 1,
+    unit: ''
+  },
+  {
+    name: 'marvin',
+    value: 'invert',
+    min: 1,
+    max: 100,
+    unit: '%'
+  },
+  {
+    name: 'phobos',
+    value: 'blur',
+    min: 0,
+    max: 3,
+    unit: 'px'
+  },
+  {
+    name: 'heat',
+    value: 'brightness',
+    min: 1,
+    max: 3,
+    unit: ''
+  }
+];
+
+// Находим выбранный пользователем эффект
+var findEffect = function () {
+  var selectedEffect = document.querySelector('.effects__radio:checked');
+  return selectedEffect; // ???
+};
