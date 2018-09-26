@@ -123,7 +123,7 @@ var appendComments = function (comments) {
     comment.querySelector('.social__text').textContent = comments[i];
     fragment.appendChild(comment);
   }
-  return socialComments;
+  socialComments.appendChild(fragment);
 };
 
 // DOM-элемент заполняем данными из массива
@@ -152,8 +152,8 @@ var hideBigPhoto = function () {
 
 // Функция закрытия большого фото нажатием esc
 var onBigPhotoEscPress = function (evt) {
-  if (evt.KeyCode === KeyCode.ESC) {
-    evt.preventDfault();
+  if (evt.keyCode === KeyCode.ESC) {
+    evt.preventDefault();
     hideBigPhoto();
   }
 };
@@ -161,7 +161,7 @@ var onBigPhotoEscPress = function (evt) {
 // Функция открытия большого фото
 var showBigPhoto = function (photo) {
   renderBigPicture(photo);
-  bigPicture.classList.remove('hodden');
+  bigPicture.classList.remove('hidden');
   bigPictureClose.addEventListener('click', hideBigPhoto);
   bigPicture.addEventListener('keydown', onBigPhotoEscPress);
   bigPictureClose.focus();
@@ -187,12 +187,12 @@ var uploadOverlay = document.querySelector('.img-upload__overlay');
 var fileUploadControl = document.querySelector('#upload-file');
 // Кнопка закрытия окна редактирования изображения
 var uploadCancel = document.querySelector('.img-upload__cancel');
-var uploadPreview = document.querySelector('.img-upload__preview img');
+var uploadPreview = document.querySelector('.img-upload__preview');
 
 // Функция закрытия формы загрузки изображения по нажатию на esc
 var onUploadEscPress = function (evt) {
-  if (evt.KeyCode === KeyCode.ESC) {
-    evt.preventDfault();
+  if (evt.keyCode === KeyCode.ESC) {
+    evt.preventDefault();
     closeImgUpload();
   }
 };
@@ -224,10 +224,10 @@ var scaleControlValue = document.querySelector('.scale__control--value');
 
 // Добавляем значение масштаба
 var setScale = function (value) {
-  var currentValue = scaleControlValue.value.slice(0, -1);
+  var currentValue = +scaleControlValue.value.slice(0, -1);
   var newValue = currentValue + value * Scale.STEP;
   if (newValue <= Scale.MAX && newValue >= Scale.MIN) {
-    scaleControlValue = newValue + '%';
+    scaleControlValue.value = newValue + '%';
     uploadPreview.style.transform = 'scale(' + newValue / 100 + ')';
   }
 };
@@ -243,8 +243,11 @@ scaleControlBigger.addEventListener('click', function () {
 });
 
 // НАЛОЖЕНИЕ ЭФФЕКТА ИЗОБРАЖЕНИЯ
-var EFFECT_DEEP_MAX = 100;
-var EFFECT_DEEP_MIN = 0;
+var Deep = {
+  MIN: 1,
+  MAX: 100
+};
+var PIN_MAX = 455;
 var EFFECTS = [
   {
     name: 'chrome',
@@ -283,8 +286,110 @@ var EFFECTS = [
   }
 ];
 
-// Находим выбранный пользователем эффект
-var findEffect = function () {
-  var selectedEffect = document.querySelector('.effects__radio:checked');
-  return selectedEffect; // ???
+var sliderEffectLevel = document.querySelector('.img-upload__effect-level.effect-level');
+var radioEffectNone = document.querySelector('#effect-none');
+var radioEffectChrome = document.querySelector('#effect-chrome');
+var radioEffectSepia = document.querySelector('#effect-sepia');
+var radioEffectMarvin = document.querySelector('#effect-marvin');
+var radioEffectPhobos = document.querySelector('#effect-phobos');
+var radioEffectHeat = document.querySelector('#effect-heat');
+
+// Функция сброса эффектов с картинки
+var resetUploadPreviewEffects = function () {
+  uploadPreview.className = 'img-upload__preview';
+  uploadPreview.removeAttribute('style');
+  sliderEffectLevel.classList.remove('visually-hidden');
+};
+
+// Функция возвращающая положение пина слайдера в позиции 100%
+var getSliderPinOneHundredPercent = function () {
+  var effectLevelPin = document.querySelector('.effect-level__pin');
+  var effectLevelDepth = document.querySelector('.effect-level__depth');
+
+  effectLevelPin.style.left = PIN_MAX + 'px';
+  effectLevelDepth.style.width = 100 + '%';
+};
+
+
+// Обработчик нажатия на радиобатон effect-none
+radioEffectNone.addEventListener('click', function () {
+  resetUploadPreviewEffects();
+  sliderEffectLevel.classList.add('visually-hidden');
+});
+
+
+// Обработчик нажатия на радиобатон Chrome
+radioEffectChrome.addEventListener('click', function () {
+  resetUploadPreviewEffects();
+  getSliderPinOneHundredPercent();
+  uploadPreview.classList.add('effects__preview--chrome');
+});
+
+
+// Обработчик нажатия на радиобатон Sepia
+radioEffectSepia.addEventListener('click', function () {
+  resetUploadPreviewEffects();
+  getSliderPinOneHundredPercent();
+  uploadPreview.classList.add('effects__preview--sepia');
+});
+
+
+// Обработчик нажатия на радиобатон Marvin
+radioEffectMarvin.addEventListener('click', function () {
+  resetUploadPreviewEffects();
+  getSliderPinOneHundredPercent();
+  uploadPreview.classList.add('effects__preview--marvin');
+});
+
+
+// Обработчик нажатия на радиобатон Phobos
+radioEffectPhobos.addEventListener('click', function () {
+  resetUploadPreviewEffects();
+  getSliderPinOneHundredPercent();
+  uploadPreview.classList.add('effects__preview--phobos');
+});
+
+
+// Обработчик нажатия на радиобатон Heat
+radioEffectHeat.addEventListener('click', function () {
+  resetUploadPreviewEffects();
+  getSliderPinOneHundredPercent();
+  uploadPreview.classList.add('effects__preview--heat');
+});
+
+
+// Функция вычисляющая пропорцию глубины эффекта, переводя пиксели в проценты
+var getProportion = function (currentValue, minValue, maxValue) {
+  return Math.round(currentValue * 100 / maxValue);
+};
+
+// Функция возвращающая пропорцию интенсивности эффекта в зависимости от установленной величины
+var getEffectProportion = function (levelValue, minValue, maxValue) {
+  return (levelValue * maxValue / 100) + minValue;
+};
+
+// Функция возвращающая значение фильтра
+var getFilterValue = function (mapName, effectValue) {
+  var filterValue = '';
+  switch (mapName) {
+    case 'effects__preview--chrome':
+      filterValue = EFFECTS[0].value + '(' + getEffectProportion(effectValue, EFFECTS[0].min, EFFECTS[0].max) + ')';
+      break;
+    case 'effects__preview--sepia':
+      filterValue = EFFECTS[1].value + '(' + getEffectProportion(effectValue, EFFECTS[1].min, EFFECTS[1].max) + ')';
+      break;
+    case 'effects__preview--marvin':
+      filterValue = EFFECTS[2].value + '(' + getEffectProportion(effectValue, EFFECTS[2].min, EFFECTS[2].max) + EFFECTS[2].unit + ')';
+      break;
+    case 'effects__preview--phobos':
+      filterValue = EFFECTS[3].value + '(' + getEffectProportion(effectValue, EFFECTS[3].min, EFFECTS[3].max) + EFFECTS[3].unit + ')';
+      break;
+    case 'effects__preview--heat':
+      filterValue = EFFECTS[4].value + '(' + (getEffectProportion(effectValue, EFFECTS[4].min, EFFECTS[4].max) + EFFECTS[4].unit + ')';
+      break;
+    default:
+      break;
+  }
+
+  return filterValue;
 };
