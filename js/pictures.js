@@ -211,6 +211,7 @@ var openImgUploadOverlay = function () {
   uploadCancel.addEventListener('click', closeImgUpload);
   uploadOverlay.addEventListener('keydown', onUploadEscPress);
   fileUploadControl.removeEventListener('change', openImgUploadOverlay);
+  sliderEffectLevel.classList.add('visually-hidden');
   uploadCancel.focus();
 };
 
@@ -247,8 +248,8 @@ var Deep = {
   MIN: 1,
   MAX: 100
 };
-var PIN_MAX = 455;
-var EFFECTS = [
+var pinMax = document.querySelector('.effect-level__line').offsetWidth;
+var Effects = [
   {
     name: 'chrome',
     value: 'grayscale',
@@ -306,7 +307,7 @@ var getSliderPinOneHundredPercent = function () {
   var effectLevelPin = document.querySelector('.effect-level__pin');
   var effectLevelDepth = document.querySelector('.effect-level__depth');
 
-  effectLevelPin.style.left = PIN_MAX + 'px';
+  effectLevelPin.style.left = pinMax + 'px';
   effectLevelDepth.style.width = 100 + '%';
 };
 
@@ -373,19 +374,19 @@ var getFilterValue = function (mapName, effectValue) {
   var filterValue = '';
   switch (mapName) {
     case 'effects__preview--chrome':
-      filterValue = EFFECTS[0].value + '(' + getEffectProportion(effectValue, EFFECTS[0].min, EFFECTS[0].max) + ')';
+      filterValue = Effects[0].value + '(' + getEffectProportion(effectValue, Effects[0].min, Effects[0].max) + ')';
       break;
     case 'effects__preview--sepia':
-      filterValue = EFFECTS[1].value + '(' + getEffectProportion(effectValue, EFFECTS[1].min, EFFECTS[1].max) + ')';
+      filterValue = Effects[1].value + '(' + getEffectProportion(effectValue, Effects[1].min, Effects[1].max) + ')';
       break;
     case 'effects__preview--marvin':
-      filterValue = EFFECTS[2].value + '(' + getEffectProportion(effectValue, EFFECTS[2].min, EFFECTS[2].max) + EFFECTS[2].unit + ')';
+      filterValue = Effects[2].value + '(' + getEffectProportion(effectValue, Effects[2].min, Effects[2].max) + Effects[2].unit + ')';
       break;
     case 'effects__preview--phobos':
-      filterValue = EFFECTS[3].value + '(' + getEffectProportion(effectValue, EFFECTS[3].min, EFFECTS[3].max) + EFFECTS[3].unit + ')';
+      filterValue = Effects[3].value + '(' + getEffectProportion(effectValue, Effects[3].min, Effects[3].max) + Effects[3].unit + ')';
       break;
     case 'effects__preview--heat':
-      filterValue = EFFECTS[4].value + '(' + (getEffectProportion(effectValue, EFFECTS[4].min, EFFECTS[4].max) + EFFECTS[4].unit + ')';
+      filterValue = Effects[4].value + '(' + getEffectProportion(effectValue, Effects[4].min, Effects[4].max) + Effects[4].unit + ')';
       break;
     default:
       break;
