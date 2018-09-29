@@ -288,12 +288,14 @@ var Effects = [
 ];
 
 var sliderEffectLevel = document.querySelector('.img-upload__effect-level.effect-level');
+var effectList = document.querySelector('.effects__list');
 var radioEffectNone = document.querySelector('#effect-none');
 var radioEffectChrome = document.querySelector('#effect-chrome');
 var radioEffectSepia = document.querySelector('#effect-sepia');
 var radioEffectMarvin = document.querySelector('#effect-marvin');
 var radioEffectPhobos = document.querySelector('#effect-phobos');
 var radioEffectHeat = document.querySelector('#effect-heat');
+var currentEffect = 'effects__preview--' + effectList.querySelector('.effects__radio:checked').value;
 
 // Функция сброса эффектов с картинки
 var resetUploadPreviewEffects = function () {
@@ -311,51 +313,32 @@ var getSliderPinOneHundredPercent = function () {
   effectLevelDepth.style.width = 100 + '%';
 };
 
+// Функция, которая определяет, какой эффект выбран:
+var onImageEffectClick = function (evt) {
+  var target = evt.target;
+  if (target.tagName !== 'INPUT') {
+    return;
+  }
 
-// Обработчик нажатия на радиобатон effect-none
-radioEffectNone.addEventListener('click', function () {
+  uploadPreview.classList.remove(currentEffect);
+  var effectName = target.value;
+
+  currentEffect = 'effects__preview--' + effectName;
+
+  if (currentEffect !== 'effects__preview--none') {
+    sliderEffectLevel.classList.remove('hidden');
+    uploadPreview.classList.add(currentEffect);
+  } else {
+    sliderEffectLevel.classList.add('hidden');
+    uploadPreview.classList.add(currentEffect);
+  }
+
   resetUploadPreviewEffects();
-  sliderEffectLevel.classList.add('visually-hidden');
-});
+};
 
-
-// Обработчик нажатия на радиобатон Chrome
-radioEffectChrome.addEventListener('click', function () {
+// Обработчик нажатия эффект
+effectList.addEventListener('click', function () {
   resetUploadPreviewEffects();
-  getSliderPinOneHundredPercent();
-  uploadPreview.classList.add('effects__preview--chrome');
-});
-
-
-// Обработчик нажатия на радиобатон Sepia
-radioEffectSepia.addEventListener('click', function () {
-  resetUploadPreviewEffects();
-  getSliderPinOneHundredPercent();
-  uploadPreview.classList.add('effects__preview--sepia');
-});
-
-
-// Обработчик нажатия на радиобатон Marvin
-radioEffectMarvin.addEventListener('click', function () {
-  resetUploadPreviewEffects();
-  getSliderPinOneHundredPercent();
-  uploadPreview.classList.add('effects__preview--marvin');
-});
-
-
-// Обработчик нажатия на радиобатон Phobos
-radioEffectPhobos.addEventListener('click', function () {
-  resetUploadPreviewEffects();
-  getSliderPinOneHundredPercent();
-  uploadPreview.classList.add('effects__preview--phobos');
-});
-
-
-// Обработчик нажатия на радиобатон Heat
-radioEffectHeat.addEventListener('click', function () {
-  resetUploadPreviewEffects();
-  getSliderPinOneHundredPercent();
-  uploadPreview.classList.add('effects__preview--heat');
 });
 
 
