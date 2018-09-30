@@ -211,7 +211,7 @@ var openImgUploadOverlay = function () {
   uploadCancel.addEventListener('click', closeImgUpload);
   uploadOverlay.addEventListener('keydown', onUploadEscPress);
   fileUploadControl.removeEventListener('change', openImgUploadOverlay);
-  sliderEffectLevel.classList.add('visually-hidden');
+  effectScale.classList.add('visually-hidden');
   uploadCancel.focus();
 };
 
@@ -245,46 +245,45 @@ scaleControlBigger.addEventListener('click', function () {
 
 // НАЛОЖЕНИЕ ЭФФЕКТА ИЗОБРАЖЕНИЯ
 // var Effects = [
-  {
-    name: 'chrome',
-    value: 'grayscale',
-    min: 0,
-    max: 1,
-    unit: ''
-  },
-  {
-    name: 'sepia',
-    value: 'sepia',
-    min: 0,
-    max: 1,
-    unit: ''
-  },
-  {
-    name: 'marvin',
-    value: 'invert',
-    min: 1,
-    max: 100,
-    unit: '%'
-  },
-  {
-    name: 'phobos',
-    value: 'blur',
-    min: 0,
-    max: 3,
-    unit: 'px'
-  },
-  {
-    name: 'heat',
-    value: 'brightness',
-    min: 1,
-    max: 3,
-    unit: ''
-  }
-];
+//  {
+//    name: 'chrome',
+//    value: 'grayscale',
+//    min: 0,
+//    max: 1,
+//    unit: ''
+//  },
+//  {
+//    name: 'sepia',
+//    value: 'sepia',
+//    min: 0,
+//    max: 1,
+//    unit: ''
+//  },
+//  {
+//    name: 'marvin',
+//    value: 'invert',
+//    min: 1,
+//    max: 100,
+//    unit: '%'
+//  },
+//  {
+//    name: 'phobos',
+//    value: 'blur',
+//    min: 0,
+//    max: 3,
+//    unit: 'px'
+//  },
+//  {
+//    name: 'heat',
+//    value: 'brightness',
+//    min: 1,
+//    max: 3,
+//    unit: ''
+//  }
+// ];
 
 var effectScale = uploadOverlay.querySelector('.effect-level');
 var effectList = uploadOverlay.querySelector('.effects__list');
-var effectScale = uploadOverlay.querySelector('.effect-level');
 var effectValue = effectScale.querySelector('.effect-level__value');
 var effectLine = effectScale.querySelector('.effect-level__line');
 var effectPin = effectScale.querySelector('.effect-level__pin');
@@ -302,7 +301,7 @@ var resetEffects = function () {
   effectValue.value = DEFAULT_EFFECT_VALUE;
 };
 
-uploadPreview.classList.add(currentEffect);
+uploadImgPreview.classList.add(currentEffect);
 
 // Функция, которая определяет, какой эффект выбран:
 var onImageEffectClick = function (evt) {
@@ -317,14 +316,14 @@ var onImageEffectClick = function (evt) {
   currentEffect = 'effects__preview--' + effectName;
 
   if (currentEffect !== 'effects__preview--none') {
-    sliderEffectLevel.classList.remove('hidden');
+    effectScale.classList.remove('hidden');
     uploadImgPreview.classList.add(currentEffect);
   } else {
-    sliderEffectLevel.classList.add('hidden');
+    effectScale.classList.add('hidden');
     uploadImgPreview.classList.add(currentEffect);
   }
 
-  resetuploadImgPreviewEffects();
+  resetEffects();
 };
 
 // Обработчик нажатия эффект
@@ -332,36 +331,36 @@ effectList.addEventListener('click', onImageEffectClick);
 
 // Функция вычисляющая пропорцию глубины эффекта, переводя пиксели в проценты
 // var getProportion = function (currentValue, minValue, maxValue) {
- // return Math.round(currentValue * 100 / maxValue);
+//  return Math.round(currentValue * 100 / maxValue);
 // };
 
 // Функция возвращающая пропорцию интенсивности эффекта в зависимости от установленной величины
 // var getEffectProportion = function (levelValue, minValue, maxValue) {
- // return (levelValue * maxValue / 100) + minValue;
+//  return (levelValue * maxValue / 100) + minValue;
 // };
 
 // Функция возвращающая значение фильтра
 // var getFilterValue = function (mapName, effectValue) {
- // var filterValue = '';
- // switch (mapName) {
-  //  case 'effects__preview--chrome':
-   //   filterValue = Effects[0].value + '(' + getEffectProportion(effectValue, Effects[0].min, Effects[0].max) + ')';
-    //  break;
-  //  case 'effects__preview--sepia':
-    //  filterValue = Effects[1].value + '(' + getEffectProportion(effectValue, Effects[1].min, Effects[1].max) + ')';
-    //  break;
-  //  case 'effects__preview--marvin':
-    //  filterValue = Effects[2].value + '(' + getEffectProportion(effectValue, Effects[2].min, Effects[2].max) + Effects[2].unit + ')';
-    //  break;
-  //  case 'effects__preview--phobos':
-    //  filterValue = Effects[3].value + '(' + getEffectProportion(effectValue, Effects[3].min, Effects[3].max) + Effects[3].unit + ')';
-    //  break;
-  //  case 'effects__preview--heat':
-    //  filterValue = Effects[4].value + '(' + getEffectProportion(effectValue, Effects[4].min, Effects[4].max) + Effects[4].unit + ')';
-    //  break;
-  //  default:
-    //  break;
+//  var filterValue = '';
+//  switch (mapName) {
+//    case 'effects__preview--chrome':
+//      filterValue = Effects[0].value + '(' + getEffectProportion(effectValue, Effects[0].min, Effects[0].max) + ')';
+//      break;
+//    case 'effects__preview--sepia':
+//      filterValue = Effects[1].value + '(' + getEffectProportion(effectValue, Effects[1].min, Effects[1].max) + ')';
+//      break;
+//    case 'effects__preview--marvin':
+//      filterValue = Effects[2].value + '(' + getEffectProportion(effectValue, Effects[2].min, Effects[2].max) + Effects[2].unit + ')';
+//      break;
+//    case 'effects__preview--phobos':
+//      filterValue = Effects[3].value + '(' + getEffectProportion(effectValue, Effects[3].min, Effects[3].max) + Effects[3].unit + ')';
+//      break;
+//    case 'effects__preview--heat':
+//      filterValue = Effects[4].value + '(' + getEffectProportion(effectValue, Effects[4].min, Effects[4].max) + Effects[4].unit + ')';
+//      break;
+//    default:
+//      break;
 //  }
 
 //  return filterValue;
-//};
+// };
