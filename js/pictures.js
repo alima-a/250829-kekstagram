@@ -364,3 +364,102 @@ effectList.addEventListener('click', onImageEffectClick);
 
 //  return filterValue;
 // };
+
+// ВАЛИДАЦИЯ ХЭШ-ТЭГОВ
+
+var HASH_TAGS_MAX_LENGTH = 20;
+var HASH_TAGS_MAX_COUNT = 5;
+
+// Функция проверяющая, что хэш-тег должен начинаться с символа #
+var isHashTagBeginSymbolLattice = function (elem) {
+  var result = false;
+  for (var i = 0; i < elem.length; i++) {
+    if (elem[i].charAt(0) !== '#') {
+      result = true;
+      break;
+    }
+  }
+  return result;
+};
+
+// Функция проверяющая, что хэш-тег не может состоять только из одной решётки
+var isHashTagOnlySymbolLattice = function (elem) {
+  var result = false;
+  for (var i = 0; i < elem.length; i++) {
+    if (elem[i].charAt(0) === '#' && elem[i].length === 1) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+};
+
+// Функция проверяющая, разделени ли хэш-тэги пробелами
+var isHashTagSplitsWithSpaces = function (elem) {
+  var result = false;
+  for (var i = 0; i < elem.length; i++) {
+    if ((elem[i].match(/#/g) || []).length > 1) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+};
+
+// Функция, проверяющая, что один хэш-тег не используется дважды
+var isHashTagNotDuplicate = function (elem) {
+  var result = false;
+  for (var i = 0; i < elem.length; i++) {
+    var currentHashTag = elem[i].toLowerCase();
+    for (var j = 0; j < elem.length; j++) {
+      if (currentHashTag === elem[j].toLowerCase() && j !== i) {
+        result = true;
+        break;
+      }
+    }
+  }
+  return result;
+};
+
+// Функция проверяющая что максимальная длина одного хэш-тега 20 символов
+var isHashTagMoreThanTwentySymbols = function (elem) {
+  var result = false;
+  for (var i = 0; i < elem.length; i++) {
+    if (elem[i].length > HASH_TAGS_MAX_LENGTH) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+};
+
+// Функция проверяющая, что нельзя указать больше пяти хэш-тегов;
+var istHashTagCountLessFive = function (elem) {
+  var result = false;
+  if (elem.length > HASH_TAGS_MAX_COUNT) {
+    result = true;
+  }
+  return result;
+};
+
+// теги нечувствительны к регистру: #ХэшТег и #хэштег считаются одним и тем же тегом.
+// ТУТ ХЗ КАК
+
+// Функция, производящая валидацию формы
+var testHashTags = function (element, arr) {
+  var errorMessages = [];
+  for (var hashIndex = 0; hashIndex < arr.length; hashIndex++) {
+    var currentHash = arr[hashIndex];
+    errorMessages.push(isHashTagBeginSymbolLattice(currentHash) ? 'хэш-тег должен начинаться с символа #' : '');
+    errorMessages.push(isHashTagOnlySymbolLattice(currentHash) ? 'хэш-тег не может состоять только из одной решётки' : '');
+    errorMessages.push(!isHashTagSplitsWithSpaces(currentHash) ? 'хэш-теги разделяются пробелами' : '');
+    errorMessages.push(isHashTagNotDuplicate(currentHash) ? 'хэш-теги не должны повторяться' : '');
+    errorMessages.push(istHashTagCountLessFive(currentHash) ? 'нельзя указать больше пяти хэштегов' : '');
+    errorMessages.push(isHashTagMoreThanTwentySymbols(currentHash) ? 'максимальная длина одного хэш-тега 20 символов, включая решётку' : '');
+  }
+};
+
+// если фокус находится в поле ввода хэш-тега, нажатие на Esc не должно приводить к закрытию формы редактирования изображения
+// Вот тут типа "var element = DocumentOrShadowRoot. activeElement" - что-то такое использовать?
+var textHashTag = document.querySelector('.text__hashtags');
+var textHashTagInFocus = textHashTag.activeElement;
