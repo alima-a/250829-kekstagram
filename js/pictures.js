@@ -370,6 +370,21 @@ effectList.addEventListener('click', onImageEffectClick);
 var HASH_TAGS_MAX_LENGTH = 20;
 var HASH_TAGS_MAX_COUNT = 5;
 
+var imgUploadForm = document.querySelector('.img-upload__form');
+var imgUploadSubmit = imgUploadForm.querySelector('.img-upload__submit');
+var textHashtags = imgUploadForm.querySelector('.text__hashtags');
+var textDescription = imgUploadForm.querySelector('.text__description');
+
+var Errors = {
+  NO_SHARP: 'Хэш-тег должен начинается с символа # (решётка)',
+  EMPTY: 'Вы ввели пустой хэш-тег',
+  ONE_SHARP: 'хэш-тег не может состоять только из одной решётки',
+  SPACES: 'хэш-теги разделяются пробелами',
+  DUBLICATE: 'хэш-теги не должны повторяться',
+  MORE_FIVE: 'нельзя указать больше пяти хэштегов',
+  LESS_TWENTY: 'максимальная длина одного хэш-тега 20 символов, включая решётку'
+};
+
 // Функция проверяющая, что хэш-тег должен начинаться с символа #
 var isHashTagBeginSymbolLattice = function (elem) {
   var result = false;
@@ -442,9 +457,6 @@ var istHashTagCountLessFive = function (elem) {
   return result;
 };
 
-// теги нечувствительны к регистру: #ХэшТег и #хэштег считаются одним и тем же тегом.
-// ТУТ ХЗ КАК
-
 // Функция, производящая валидацию формы
 var testHashTags = function (element, arr) {
   var errorMessages = [];
@@ -463,3 +475,32 @@ var testHashTags = function (element, arr) {
 // Вот тут типа "var element = DocumentOrShadowRoot. activeElement" - что-то такое использовать?
 var textHashTag = document.querySelector('.text__hashtags');
 var textHashTagInFocus = textHashTag.activeElement;
+
+// Новая функция валидации
+var validateHashtags = function (hashtags) {
+  var hashtags = textHashtags.value.trim();
+  hashtags = hashtags.toLowerCase();
+  hashtags = hashtags.split(', ');
+
+  var errorText = '';
+  for (var i = 0; i < hashtags .length; i++) {
+    if (hashtags[i][0] !== '#') {
+      errorText += Error.NO_SHARP;
+    }
+    if (hashtags[i].charAt(0) === '#' && hashtags[i].length === 1) {
+      errorText += Error.EMPTY;
+    }
+    if ((hashtags[i].match(/#/g) || []).length > 1) {
+      errorText += Error.SPACES;
+    }
+    if (hashtags[i].length > HASH_TAGS_MAX_LENGTH) {
+      errorText += Error.LESS_TWENTY;
+    }
+    if (hashtags.length > HASH_TAGS_MAX_COUNT) {
+      errorText += Error.MORE_FIVE;
+    }
+  }
+};
+
+var onSubmitClick = textHashtags.setCustomValidity(errorText);
+imgUploadForm.addEventListener('click', onSubmitClick);
