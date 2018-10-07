@@ -373,9 +373,9 @@ var HASH_TAGS_MAX_COUNT = 5;
 var imgUploadForm = document.querySelector('.img-upload__form');
 var imgUploadSubmit = imgUploadForm.querySelector('.img-upload__submit');
 var textHashtags = imgUploadForm.querySelector('.text__hashtags');
-var textDescription = imgUploadForm.querySelector('.text__description');
+// var textDescription = imgUploadForm.querySelector('.text__description');
 
-var Errors = {
+var Error = {
   NO_SHARP: 'Хэш-тег должен начинается с символа # (решётка)',
   EMPTY: 'Вы ввели пустой хэш-тег',
   ONE_SHARP: 'хэш-тег не может состоять только из одной решётки',
@@ -385,105 +385,25 @@ var Errors = {
   LESS_TWENTY: 'максимальная длина одного хэш-тега 20 символов, включая решётку'
 };
 
-// Функция проверяющая, что хэш-тег должен начинаться с символа #
-var isHashTagBeginSymbolLattice = function (elem) {
-  var result = false;
-  for (var i = 0; i < elem.length; i++) {
-    if (elem[i].charAt(0) !== '#') {
-      result = true;
-      break;
-    }
-  }
-  return result;
-};
-
-// Функция проверяющая, что хэш-тег не может состоять только из одной решётки
-var isHashTagOnlySymbolLattice = function (elem) {
-  var result = false;
-  for (var i = 0; i < elem.length; i++) {
-    if (elem[i].charAt(0) === '#' && elem[i].length === 1) {
-      result = true;
-      break;
-    }
-  }
-  return result;
-};
-
-// Функция проверяющая, разделени ли хэш-тэги пробелами
-var isHashTagSplitsWithSpaces = function (elem) {
-  var result = false;
-  for (var i = 0; i < elem.length; i++) {
-    if ((elem[i].match(/#/g) || []).length > 1) {
-      result = true;
-      break;
-    }
-  }
-  return result;
-};
 
 // Функция, проверяющая, что один хэш-тег не используется дважды
-var isHashTagNotDuplicate = function (elem) {
-  var result = false;
-  for (var i = 0; i < elem.length; i++) {
-    var currentHashTag = elem[i].toLowerCase();
-    for (var j = 0; j < elem.length; j++) {
-      if (currentHashTag === elem[j].toLowerCase() && j !== i) {
-        result = true;
-        break;
-      }
+var isHashTagNotDuplicate = function (array, index) {
+  for (var i = 0; i < array.length; i++) {
+    if (array[index] === array[i] && index !== i) {
+      return true;
     }
   }
-  return result;
+  return false;
 };
 
-// Функция проверяющая что максимальная длина одного хэш-тега 20 символов
-var isHashTagMoreThanTwentySymbols = function (elem) {
-  var result = false;
-  for (var i = 0; i < elem.length; i++) {
-    if (elem[i].length > HASH_TAGS_MAX_LENGTH) {
-      result = true;
-      break;
-    }
-  }
-  return result;
-};
-
-// Функция проверяющая, что нельзя указать больше пяти хэш-тегов;
-var istHashTagCountLessFive = function (elem) {
-  var result = false;
-  if (elem.length > HASH_TAGS_MAX_COUNT) {
-    result = true;
-  }
-  return result;
-};
-
-// Функция, производящая валидацию формы
-var testHashTags = function (element, arr) {
-  var errorMessages = [];
-  for (var hashIndex = 0; hashIndex < arr.length; hashIndex++) {
-    var currentHash = arr[hashIndex];
-    errorMessages.push(isHashTagBeginSymbolLattice(currentHash) ? 'хэш-тег должен начинаться с символа #' : '');
-    errorMessages.push(isHashTagOnlySymbolLattice(currentHash) ? 'хэш-тег не может состоять только из одной решётки' : '');
-    errorMessages.push(!isHashTagSplitsWithSpaces(currentHash) ? 'хэш-теги разделяются пробелами' : '');
-    errorMessages.push(isHashTagNotDuplicate(currentHash) ? 'хэш-теги не должны повторяться' : '');
-    errorMessages.push(istHashTagCountLessFive(currentHash) ? 'нельзя указать больше пяти хэштегов' : '');
-    errorMessages.push(isHashTagMoreThanTwentySymbols(currentHash) ? 'максимальная длина одного хэш-тега 20 символов, включая решётку' : '');
-  }
-};
-
-// если фокус находится в поле ввода хэш-тега, нажатие на Esc не должно приводить к закрытию формы редактирования изображения
-// Вот тут типа "var element = DocumentOrShadowRoot. activeElement" - что-то такое использовать?
-var textHashTag = document.querySelector('.text__hashtags');
-var textHashTagInFocus = textHashTag.activeElement;
-
-// Новая функция валидации
+// Функция валидации
 var validateHashtags = function (hashtags) {
-  var hashtags = textHashtags.value.trim();
+  hashtags = textHashtags.value.trim();
   hashtags = hashtags.toLowerCase();
-  hashtags = hashtags.split(', ');
+  hashtags = hashtags.split(' ');
 
   var errorText = '';
-  for (var i = 0; i < hashtags .length; i++) {
+  for (var i = 0; i < hashtags.length; i++) {
     if (hashtags[i][0] !== '#') {
       errorText += Error.NO_SHARP;
     }
@@ -499,8 +419,23 @@ var validateHashtags = function (hashtags) {
     if (hashtags.length > HASH_TAGS_MAX_COUNT) {
       errorText += Error.MORE_FIVE;
     }
+    if (isHashTagNotDuplicate(hashtags, i)) {
+      errorText += Error.DUBLICATE;
+    }
   }
+  textHashtags.setCustomValidity(errorText);
 };
 
-var onSubmitClick = textHashtags.setCustomValidity(errorText);
-imgUploadForm.addEventListener('click', onSubmitClick);
+// Валидация по клику на imgUploadSubmit
+imgUploadSubmit.addEventListener('click', validateHashtags);
+
+// если фокус находится в поле ввода хэш-тега,
+// нажатие на Esc не должно приводить к закрытию
+// формы редактирования изображения
+textHashtags.addEventListener('focisin', function () {
+  uploadOverlay.removeEventListener('keydown', onUploadEscPress);
+});
+
+textHashtags.addEventListener('focusout', function () {
+  uploadOverlay.addEventListener('keydown', onUploadEscPress);
+});
