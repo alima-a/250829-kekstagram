@@ -244,43 +244,43 @@ scaleControlBigger.addEventListener('click', function () {
 });
 
 // НАЛОЖЕНИЕ ЭФФЕКТА ИЗОБРАЖЕНИЯ
-// var Effects = [
-//  {
-//    name: 'chrome',
-//    value: 'grayscale',
-//    min: 0,
-//    max: 1,
-//    unit: ''
-//  },
-//  {
-//    name: 'sepia',
-//    value: 'sepia',
-//    min: 0,
-//    max: 1,
-//    unit: ''
-//  },
-//  {
-//    name: 'marvin',
-//    value: 'invert',
-//    min: 1,
-//    max: 100,
-//    unit: '%'
-//  },
-//  {
-//    name: 'phobos',
-//    value: 'blur',
-//    min: 0,
-//    max: 3,
-//    unit: 'px'
-//  },
-//  {
-//    name: 'heat',
-//    value: 'brightness',
-//    min: 1,
-//    max: 3,
-//    unit: ''
-//  }
-// ];
+var Effects = [
+  {
+    name: 'chrome',
+    value: 'grayscale',
+    min: 0,
+    max: 1,
+    unit: ''
+  },
+  {
+    name: 'sepia',
+    value: 'sepia',
+    min: 0,
+    max: 1,
+    unit: ''
+  },
+  {
+    name: 'marvin',
+    value: 'invert',
+    min: 1,
+    max: 100,
+    unit: '%'
+  },
+  {
+    name: 'phobos',
+    value: 'blur',
+    min: 0,
+    max: 3,
+    unit: 'px'
+  },
+  {
+    name: 'heat',
+    value: 'brightness',
+    min: 1,
+    max: 3,
+    unit: ''
+  }
+];
 
 var effectScale = uploadOverlay.querySelector('.effect-level');
 var effectList = uploadOverlay.querySelector('.effects__list');
@@ -329,41 +329,85 @@ var onImageEffectClick = function (evt) {
 // Обработчик нажатия эффект
 effectList.addEventListener('click', onImageEffectClick);
 
-// Функция вычисляющая пропорцию глубины эффекта, переводя пиксели в проценты
-// var getProportion = function (currentValue, minValue, maxValue) {
-//  return Math.round(currentValue * 100 / maxValue);
-// };
-
 // Функция возвращающая пропорцию интенсивности эффекта в зависимости от установленной величины
-// var getEffectProportion = function (levelValue, minValue, maxValue) {
-//  return (levelValue * maxValue / 100) + minValue;
-// };
+var getEffectProportion = function (levelValue, minValue, maxValue) {
+  return (levelValue * maxValue / 100) + minValue;
+};
 
 // Функция возвращающая значение фильтра
-// var getFilterValue = function (mapName, effectValue) {
-//  var filterValue = '';
-//  switch (mapName) {
-//    case 'effects__preview--chrome':
-//      filterValue = Effects[0].value + '(' + getEffectProportion(effectValue, Effects[0].min, Effects[0].max) + ')';
-//      break;
-//    case 'effects__preview--sepia':
-//      filterValue = Effects[1].value + '(' + getEffectProportion(effectValue, Effects[1].min, Effects[1].max) + ')';
-//      break;
-//    case 'effects__preview--marvin':
-//      filterValue = Effects[2].value + '(' + getEffectProportion(effectValue, Effects[2].min, Effects[2].max) + Effects[2].unit + ')';
-//      break;
-//    case 'effects__preview--phobos':
-//      filterValue = Effects[3].value + '(' + getEffectProportion(effectValue, Effects[3].min, Effects[3].max) + Effects[3].unit + ')';
-//      break;
-//    case 'effects__preview--heat':
-//      filterValue = Effects[4].value + '(' + getEffectProportion(effectValue, Effects[4].min, Effects[4].max) + Effects[4].unit + ')';
-//      break;
-//    default:
-//      break;
-//  }
+var getFilterValue = function (mapName, effectValue) {
+  var filterValue = '';
+  switch (mapName) {
+    case 'effects__preview--chrome':
+      filterValue = Effects[0].value + '(' + getEffectProportion(effectValue, Effects[0].min, Effects[0].max) + ')';
+      break;
+    case 'effects__preview--sepia':
+      filterValue = Effects[1].value + '(' + getEffectProportion(effectValue, Effects[1].min, Effects[1].max) + ')';
+      break;
+    case 'effects__preview--marvin':
+      filterValue = Effects[2].value + '(' + getEffectProportion(effectValue, Effects[2].min, Effects[2].max) + Effects[2].unit + ')';
+      break;
+    case 'effects__preview--phobos':
+      filterValue = Effects[3].value + '(' + getEffectProportion(effectValue, Effects[3].min, Effects[3].max) + Effects[3].unit + ')';
+      break;
+    case 'effects__preview--heat':
+      filterValue = Effects[4].value + '(' + getEffectProportion(effectValue, Effects[4].min, Effects[4].max) + Effects[4].unit + ')';
+      break;
+    default:
+      break;
+  }
 
-//  return filterValue;
-// };
+  return filterValue;
+};
+
+// ПЕРЕТАСКИВАНИЕ СЛАЙДЕРА
+var VALUE_MIN = 0;
+var VALUE_MAX = 100;
+
+var scaleLineRect = effectScale.getBoundingClientRect();
+var scaleLineX1 = scaleLineRect.left;
+var scaleLineX2 = scaleLineRect.right;
+var scaleLineWidth = scaleLineX2 - scaleLineX1;
+var onePercent = scaleLineWidth / 100;
+
+// Функция нажатия на пин
+var onSliderPinMouseDown = function (downEvt) {
+  downEvt.preventDefault();
+  var startX = downEvt.clientX;
+  // Изменение координат
+  var onMouseMove = function (evt) {
+    evt.preventDefault();
+
+    if (evt.clientX >= scaleLineX1 && evt.clientX <= scaleLineX2) {
+      var shift = startX - evt.clientX;
+      startX = evt.clientX;
+      var value = (effectPin.offsetLeft - shift) / onePercent;
+    }
+
+    if (evt.clientX > scaleLineX2 || value > VALUE_MAX) {
+      value = VALUE_MAX;
+    } else if (evt.clientX < scaleLineX1 || value < VALUE_MIN) {
+      value = VALUE_MIN;
+    }
+
+    getFilterValue(onImageEffectClick(), value);
+  };
+
+  // Отпускание пина
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+};
+
+// Слушаем действия с пином
+effectPin.addEventListener('mousedown', onSliderPinMouseDown);
+effectPin.removeEventListener('mousedown', onSliderPinMouseDown);
 
 // ВАЛИДАЦИЯ ХЭШ-ТЭГОВ
 
