@@ -364,3 +364,93 @@ effectList.addEventListener('click', onImageEffectClick);
 
 //  return filterValue;
 // };
+
+// ВАЛИДАЦИЯ ХЭШ-ТЭГОВ
+
+var HASH_TAGS_MAX_LENGTH = 20;
+var HASH_TAGS_MAX_COUNT = 5;
+
+var imgUploadForm = document.querySelector('.img-upload__form');
+var imgUploadSubmit = imgUploadForm.querySelector('.img-upload__submit');
+var textHashtags = imgUploadForm.querySelector('.text__hashtags');
+var textDescription = imgUploadForm.querySelector('.text__description');
+
+var Error = {
+  NO_SHARP: 'Хэш-тег должен начинается с символа # (решётка)',
+  EMPTY: 'Вы ввели пустой хэш-тег',
+  ONE_SHARP: 'хэш-тег не может состоять только из одной решётки',
+  SPACES: 'хэш-теги разделяются пробелами',
+  DUBLICATE: 'хэш-теги не должны повторяться',
+  MORE_FIVE: 'нельзя указать больше пяти хэштегов',
+  LESS_TWENTY: 'максимальная длина одного хэш-тега 20 символов, включая решётку'
+};
+
+
+// Функция, проверяющая, что один хэш-тег не используется дважды
+var isHashTagNotDuplicate = function (array, index) {
+  for (var i = 0; i < array.length; i++) {
+    if (array[index] === array[i] && index !== i) {
+      return true;
+    }
+    break;
+  }
+  return false;
+};
+
+// Функция валидации
+var validateHashtags = function (hashtags) {
+  hashtags = textHashtags.value.trim();
+  hashtags = hashtags.toLowerCase();
+  hashtags = hashtags.split(' ');
+
+  var errorText = '';
+  for (var i = 0; i < hashtags.length; i++) {
+    if (hashtags[i][0] !== '#') {
+      errorText += Error.NO_SHARP;
+      break;
+    }
+    if (hashtags[i].charAt(0) === '#' && hashtags[i].length === 1) {
+      errorText += Error.EMPTY;
+      break;
+    }
+    if ((hashtags[i].match(/#/g) || []).length > 1) {
+      errorText += Error.SPACES;
+      break;
+    }
+    if (hashtags[i].length > HASH_TAGS_MAX_LENGTH) {
+      errorText += Error.LESS_TWENTY;
+      break;
+    }
+    if (hashtags.length > HASH_TAGS_MAX_COUNT) {
+      errorText += Error.MORE_FIVE;
+      break;
+    }
+    if (isHashTagNotDuplicate(hashtags, i)) {
+      errorText += Error.DUBLICATE;
+    }
+  }
+  textHashtags.setCustomValidity(errorText);
+};
+
+// Валидация по клику на imgUploadSubmit
+imgUploadSubmit.addEventListener('click', validateHashtags);
+
+// если фокус находится в поле ввода хэш-тега,
+// нажатие на Esc не должно приводить к закрытию
+// формы редактирования изображения
+textHashtags.addEventListener('focusin', function () {
+  uploadOverlay.removeEventListener('keydown', onUploadEscPress);
+});
+
+textHashtags.addEventListener('focusout', function () {
+  uploadOverlay.addEventListener('keydown', onUploadEscPress);
+});
+
+// Когда поле описания в фокусе - форма по Esc не закрывается
+textDescription.addEventListener('focusin', function () {
+  uploadOverlay.removeEventListener('keydown', onUploadEscPress);
+});
+
+textDescription.addEventListener('focusin', function () {
+  uploadOverlay.addEventListener('focusout', onUploadEscPress);
+});
