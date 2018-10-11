@@ -317,7 +317,7 @@ var setPinPosition = function (value) {
 
 // Рассчитываем значение фильтра (вместе с еденицами измерения)
 var getFilterValue = function (effect, value) {
-  return value + (Effect[effect].MAX - Effect[effect].MIN) / effectValue.MAX + Effect[effect].MIN + Effect[effect].UNIT;
+  return value * (Effect[effect].MAX - Effect[effect].MIN) / effectValue.MAX + Effect[effect].MIN + Effect[effect].UNIT;
 };
 
 // Применяет эффект к фото в зависимости от положения пина
