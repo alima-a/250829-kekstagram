@@ -244,64 +244,87 @@ scaleControlBigger.addEventListener('click', function () {
 });
 
 // НАЛОЖЕНИЕ ЭФФЕКТА ИЗОБРАЖЕНИЯ
-var Effects = [
-  {
-    name: 'chrome',
-    value: 'grayscale',
-    min: 0,
-    max: 1,
-    unit: ''
+var Effect = {
+  chrome: {
+    NAME: 'chrome',
+    PROPERTY: 'grayscale',
+    MIN: 0,
+    MAX: 1,
+    UNIT: ''
   },
-  {
-    name: 'sepia',
-    value: 'sepia',
-    min: 0,
-    max: 1,
-    unit: ''
+  sepia: {
+    NAME: 'sepia',
+    PROPERTY: 'sepia',
+    MIN: 0,
+    MAX: 1,
+    UNIT: ''
   },
-  {
-    name: 'marvin',
-    value: 'invert',
-    min: 1,
-    max: 100,
-    unit: '%'
+  marvin: {
+    NAME: 'marvin',
+    PROPERTY: 'invert',
+    MIN: 1,
+    MAX: 100,
+    UNIT: '%'
   },
-  {
-    name: 'phobos',
-    value: 'blur',
-    min: 0,
-    max: 3,
+  phobos: {
+    NAME: 'phobos',
+    PROPERTY: 'blur',
+    MIN: 0,
+    MAX: 3,
     unit: 'px'
   },
-  {
-    name: 'heat',
-    value: 'brightness',
-    min: 1,
-    max: 3,
-    unit: ''
+  heat: {
+    NAME: 'heat',
+    PROPERTY: 'brightness',
+    MIN: 1,
+    MAX: 3,
+    UNIT: ''
   }
-];
+};
+
+var effectValue = {
+  MAX: 100,
+  DEFAULT: 100,
+};
+
+var DEFAULT_EFFECT = 'none';
+var DEFAULT_EFFECT_CLASS = 100;
 
 var effectScale = uploadOverlay.querySelector('.effect-level');
-var effectList = uploadOverlay.querySelector('.effects__list');
-var effectValue = effectScale.querySelector('.effect-level__value');
+var effectsList = uploadOverlay.querySelector('.effects__list');
+var effectLevelValue = effectScale.querySelector('.effect-level__value');
 var effectLine = effectScale.querySelector('.effect-level__line');
 var effectPin = effectScale.querySelector('.effect-level__pin');
 var effectDepth = effectScale.querySelector('.effect-level__depth');
-var currentEffect = 'effects__preview--' + effectList.querySelector('.effects__radio:checked').value;
+var currentEffectName = effectsList.querySelector('.effects__radio:checked').value;
+var currentEffectClass = 'effects__preview--' + currentEffectName;
 
-var DEFAULT_EFFECT_VALUE = 100;
-
-// Функция сброса эффектов с картинки и возвращения пина слайдеров в позицию 100%
-var resetEffects = function () {
-  effectScale.classList.remove('visually-hidden');
-  uploadImgPreview.style = '';
-  effectPin.style.left = effectLine.offsetWidth + 'px';
-  effectDepth.style.width = DEFAULT_EFFECT_VALUE + '%';
-  effectValue.value = DEFAULT_EFFECT_VALUE;
+// Функция сброса эффектов с картинки
+var setDefaultEffect = function () {
+  effectScale.classList.add('visually-hidden');
+  effectsList.querySelector('#effect-' + DEFAULT_EFFECT).checked = true;
+  uploadImgPreview.classList.remove(currentEffectClass);
+  uploadImgPreview.classList.add(DEFAULT_EFFECT_CLASS);
+  uploadImgPreview.style.filter = '';
 };
 
-uploadImgPreview.classList.add(currentEffect);
+// Функция устанавливает значение пина
+var setPinPosition = function (value) {
+  effectLevelValue.value = Math.round(value);
+  effectPin.style.left = value + '%';
+  effectDepth.style.width = effectPin.style.left;
+};
+
+// Рассчитываем значение фильтра (вместе с еденицами измерения)
+var getFilterValue = function (effect, value) {
+  return value + (Effect[effect].MAX - Effect[effect].MIN) / effectValue.MAX + Effect[effect].MIN + Effect[effect].UNIT;
+};
+
+// Применяет эффект к фото в зависимости от положения пина
+var applyEffect = function (value) {
+  setPinPosition(value);
+  uploadImgPreview.style.filter = Effect[currentEffectName].PROPERTY + '(' + getFilterValue(currentEffectName, value) + ')';
+};
 
 // Функция, которая определяет, какой эффект выбран:
 var onImageEffectClick = function (evt) {
@@ -310,93 +333,59 @@ var onImageEffectClick = function (evt) {
     return;
   }
 
-  uploadImgPreview.classList.remove(currentEffect);
-  var effectName = target.value;
+  uploadImgPreview.classList.remove(currentEffectClass);
+  currentEffectName = target.value;
 
-  currentEffect = 'effects__preview--' + effectName;
+  currentEffectClass = 'effects__preview--' + currentEffectName;
+  uploadImgPreview.classList.add(currentEffectClass);
 
-  if (currentEffect !== 'effects__preview--none') {
-    effectScale.classList.remove('hidden');
-    uploadImgPreview.classList.add(currentEffect);
+  if (currentEffectClass === DEFAULT_EFFECT_CLASS) {
+    setDefaultEffect();
   } else {
-    effectScale.classList.add('hidden');
-    uploadImgPreview.classList.add(currentEffect);
+    effectScale.classList.remove('visually-hidden');
+    applyEffect(effectValue.DEFAULT);
   }
-
-  resetEffects();
 };
 
-// Обработчик нажатия эффект
-effectList.addEventListener('click', onImageEffectClick);
-
-// Функция возвращающая пропорцию интенсивности эффекта в зависимости от установленной величины
-var getEffectProportion = function (levelValue, minValue, maxValue) {
-  return (levelValue * maxValue / 100) + minValue;
-};
-
-// Функция возвращающая значение фильтра
-var getFilterValue = function (mapName, effectValue) {
-  var filterValue = '';
-  switch (mapName) {
-    case 'effects__preview--chrome':
-      filterValue = Effects[0].value + '(' + getEffectProportion(effectValue, Effects[0].min, Effects[0].max) + ')';
-      break;
-    case 'effects__preview--sepia':
-      filterValue = Effects[1].value + '(' + getEffectProportion(effectValue, Effects[1].min, Effects[1].max) + ')';
-      break;
-    case 'effects__preview--marvin':
-      filterValue = Effects[2].value + '(' + getEffectProportion(effectValue, Effects[2].min, Effects[2].max) + Effects[2].unit + ')';
-      break;
-    case 'effects__preview--phobos':
-      filterValue = Effects[3].value + '(' + getEffectProportion(effectValue, Effects[3].min, Effects[3].max) + Effects[3].unit + ')';
-      break;
-    case 'effects__preview--heat':
-      filterValue = Effects[4].value + '(' + getEffectProportion(effectValue, Effects[4].min, Effects[4].max) + Effects[4].unit + ')';
-      break;
-    default:
-      break;
-  }
-
-  return filterValue;
-};
+// Обработчик нажатия на эффект
+effectsList.addEventListener('click', onImageEffectClick);
 
 // ПЕРЕТАСКИВАНИЕ СЛАЙДЕРА
-var VALUE_MIN = 0;
-var VALUE_MAX = 100;
-
-var scaleLineRect = effectScale.getBoundingClientRect();
-var scaleLineX1 = scaleLineRect.left;
-var scaleLineX2 = scaleLineRect.right;
-var scaleLineWidth = scaleLineX2 - scaleLineX1;
-var onePercent = scaleLineWidth / 100;
+var PinValue = {
+  MIN: 0,
+  MAX: 100
+};
 
 // Функция нажатия на пин
 var onSliderPinMouseDown = function (downEvt) {
   downEvt.preventDefault();
-  var startX = downEvt.clientX;
+  var scaleLineRect = effectLine.getBoundingClientRect();
+  var startCoord = downEvt.clientX;
+
   // Изменение координат
-  var onMouseMove = function (evt) {
-    evt.preventDefault();
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
 
-    if (evt.clientX >= scaleLineX1 && evt.clientX <= scaleLineX2) {
-      var shift = startX - evt.clientX;
-      startX = evt.clientX;
-      var value = (effectPin.offsetLeft - shift) / onePercent;
+    var shift = startCoord - moveEvt.clientX;
+
+    startCoord = moveEvt.clientX;
+
+    var newValue = (effectPin.offsetLeft - shift) / scaleLineRect.width * 100;
+
+    if (newValue > PinValue.MAX) {
+      newValue = PinValue.MAX;
     }
 
-    if (evt.clientX > scaleLineX2 || value > VALUE_MAX) {
-      value = VALUE_MAX;
-    } else if (evt.clientX < scaleLineX1 || value < VALUE_MIN) {
-      value = VALUE_MIN;
+    if (newValue < PinValue.MIN) {
+      newValue = PinValue.MIN;
     }
 
-    getFilterValue(onImageEffectClick(), value);
+    applyEffect(newValue);
   };
 
   // Отпускание пина
   var onMouseUp = function (upEvt) {
     upEvt.preventDefault();
-
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
   };
@@ -407,7 +396,6 @@ var onSliderPinMouseDown = function (downEvt) {
 
 // Слушаем действия с пином
 effectPin.addEventListener('mousedown', onSliderPinMouseDown);
-effectPin.removeEventListener('mousedown', onSliderPinMouseDown);
 
 // ВАЛИДАЦИЯ ХЭШ-ТЭГОВ
 
@@ -446,6 +434,10 @@ var validateHashtags = function (hashtags) {
   hashtags = textHashtags.value.trim();
   hashtags = hashtags.toLowerCase();
   hashtags = hashtags.split(' ');
+
+  if (hashtags.length === 0) {
+    return;
+  }
 
   var errorText = '';
   for (var i = 0; i < hashtags.length; i++) {
